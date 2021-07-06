@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import { Link, useHistory } from "react-router-dom";
 import { TextField, Button, Grid, FormControl, FormLabel, FormControlLabel, RadioGroup, Radio } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import axios from 'axios';
+
 
 const useStyles = makeStyles(theme => ({
     Input: {
@@ -20,10 +22,14 @@ const useStyles = makeStyles(theme => ({
     },
     Main: {
         flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     Form: {
-        flex: 1,
-        alignItems: 'center',        
+        width: '70%',
+        alignItems: 'center',
+        borderWidth: 5,
+        borderColor: 'black'        
     },
     Item: {
         flexDirection: 'row'
@@ -35,7 +41,10 @@ const useStyles = makeStyles(theme => ({
         marginTop: '5%',
     },
     Group: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: '3%'
     }
   }))
 
@@ -44,6 +53,25 @@ function Register() {
     const classes = useStyles();
     let history = useHistory();
     const [registerForm, setRegisterForm] = useState({})
+
+
+
+    const sendForm = (registerForm:any) => {
+        axios({
+            method: 'post',
+            url: 'http://localhost:8000/register',
+            data: registerForm
+        })
+            .then(resp => {
+                if (resp.data === 'user created') {
+                    history.push('/login')
+                } else {
+                    alert(resp.data)
+                }
+        })
+    }
+
+   
     
     return (
         
@@ -92,16 +120,13 @@ function Register() {
                         />
                     </Grid>
                     <Grid item>
-                        <FormControl className={classes.Select} component="fieldset">
-                            <FormLabel component="legend">Role</FormLabel>
-                            <RadioGroup className={classes.Group} aria-label="user" name="user" value='user'>
-                                <FormControlLabel value="user" control={<Radio />} label="User" />
-                                <FormControlLabel value="admin" control={<Radio />} label="Admin" />
-                            </RadioGroup>
-                        </FormControl>
+                        <RadioGroup className={classes.Group} aria-label="user" name="user" value='user'>
+                            <FormControlLabel onChange={(role) => setRegisterForm({...registerForm, role})} value="user" control={<Radio color='default' />} label="User" />
+                            <FormControlLabel onChange={(role) => setRegisterForm({...registerForm, role})} value="admin" control={<Radio color='default' />} label="Admin" />
+                        </RadioGroup>
                     </Grid>
                 </Grid>
-                <Button disableTouchRipple={true} className={classes.Button} >Submit</Button>
+                <Button onSubmit={() => sendForm(registerForm)} className={classes.Button} >Submit</Button>
             </form>
         </div>
     );
