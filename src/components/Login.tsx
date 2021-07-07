@@ -1,9 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import { Link, useHistory } from "react-router-dom";
-import { TextField, Button, Grid, FormControl, FormLabel, FormControlLabel, RadioGroup, Radio } from '@material-ui/core';
+import React, { useState } from 'react';
+import { useHistory } from "react-router-dom";
+import { TextField, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { borders } from '@material-ui/system';
-import { useUpdateC } from '../context/Context'
+import { useUpdateC, useC } from '../context/Context'
 import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
@@ -23,6 +22,8 @@ const useStyles = makeStyles(theme => ({
     },
     Main: {
         flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -54,20 +55,22 @@ function Login() {
 
     const classes = useStyles();
     let history = useHistory();
-    const [loginForm, setLoginForm] = useState({})
+    const [loginForm, setLoginForm] = useState({email: '', password: ''})
+    const {context}:any = useC()
     const {updateData}:any = useUpdateC();
 
     const sendForm = (loginForm:any) => {
         axios({
             method: 'post',
-            url: 'http://localhost:8000/login',
+            url: 'http://192.168.31.181:8000/login',
             data: loginForm
         })
             .then(resp => {
-                if (resp.data.msg === 'user valid') {
-                    updateData(resp.data.user, resp.data)
+                if (resp.data.msg === 'ok') {
+                    updateData(resp.data)
                     history.push('/main')
                 } else {
+                    console.log(loginForm)
                     alert(resp.data)
                 }
         })
@@ -77,7 +80,7 @@ function Login() {
         
         <div className={classes.Main}>
             <h1 className={classes.H1}>Login</h1>
-            <FormControl variant='outlined' className={classes.Form}>
+            <form className={classes.Form}>
                 <Grid
                 container
                 className={classes.Container}>
@@ -87,7 +90,7 @@ function Login() {
                         required
                         label='Email'
                         variant='outlined'
-                        onChange={(email) => setLoginForm({...loginForm, email})}
+                        onChange={event => setLoginForm({...loginForm, email: event.target.value})}
                         />
                     </Grid>
                     <Grid item>
@@ -96,12 +99,12 @@ function Login() {
                         required
                         label='Password'
                         variant='outlined'
-                        onChange={(password) => setLoginForm({...loginForm, password})}
+                        onChange={event => setLoginForm({...loginForm, password: event.target.value})}
                         />
                     </Grid>
                 </Grid>
-                <Button onSubmit={() => sendForm(loginForm)} disableTouchRipple={true} className={classes.Button} >Submit</Button>
-            </FormControl>
+                <Button onClick={() => sendForm(loginForm)} disableTouchRipple={true} className={classes.Button} >Submit</Button>
+            </form>
         </div>
     );
 }

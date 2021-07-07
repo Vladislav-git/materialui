@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
-import { Grid, CardMedia, Card, CardHeader, TextField, CardContent, Button, CardActions, Modal, FormControl, RadioGroup, FormControlLabel } from '@material-ui/core';
+import { Grid, CardMedia, Card, CardHeader, TextField, CardContent, Button, CardActions, Modal } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useUpdateC } from '../context/Context'
 
@@ -21,6 +21,8 @@ const useStyles = makeStyles(theme => ({
     },
     Main: {
         flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -50,7 +52,7 @@ const useStyles = makeStyles(theme => ({
 function Products() {
 
     const classes = useStyles();
-    const [productForm, setProductForm] = useState({})
+    const [productForm, setProductForm] = useState({id: '', title: '', price: '', picture: '', type: ''})
     const [products, setProducts] = useState([{title: '', price: '', picture: '', type: ''}])
     const [isVisible, setIsVisible] = useState(false)
     const {updateData}:any = useUpdateC();
@@ -58,7 +60,7 @@ function Products() {
     useEffect(() => {
         axios({
             method: 'get',
-            url: 'http://localhost:8000/getproducts',
+            url: 'http://localhost:8000/getProducts',
         })
             .then(resp => {
                 setProducts(resp.data)
@@ -85,7 +87,7 @@ function Products() {
     const deleteProduct = () => {
         axios({
             method: 'delete',
-            url: 'http://localhost:8000/deleteProduct',
+            url: 'http://localhost:8000/changeProduct',
         })
             .then(resp => {
                 setProducts(resp.data)
@@ -109,8 +111,10 @@ function Products() {
             <Button onClick={() => setIsVisible(true)} >Add product</Button>
             <Grid
             container
+            className={classes.Main}
             >
-                {products.map((product, index) => (
+                {products[0].title === ''
+                ? products.map((product, index) => (
                     <Grid item key={index}>
                         <Card>
                             <CardHeader title={product.title} />
@@ -129,7 +133,9 @@ function Products() {
                         </Card>
 
                     </Grid>
-                ))}
+                ))
+                : null
+                }
 
             </Grid>
 
@@ -151,7 +157,7 @@ function Products() {
                             required
                             label='Product Name'
                             variant='outlined'
-                            onChange={(title) => setProductForm({...productForm, title})}
+                            onChange={event => setProductForm({...productForm, title: event.target.value})}
                             />
                         </Grid>
                         <Grid item>
@@ -160,7 +166,7 @@ function Products() {
                             required
                             label='Price'
                             variant='outlined'
-                            onChange={(price) => setProductForm({...productForm, price})}
+                            onChange={event => setProductForm({...productForm, price: event.target.value})}
                             />
                         </Grid>
                         <Grid item>
@@ -169,7 +175,7 @@ function Products() {
                             required
                             label='Type'
                             variant='outlined'
-                            onChange={(type) => setProductForm({...productForm, type})}
+                            onChange={event => setProductForm({...productForm, type: event.target.value})}
                             />
                         </Grid>
                         <Grid item>
@@ -178,7 +184,7 @@ function Products() {
                             required
                             label='Picture'
                             variant='outlined'
-                            onChange={(picture) => setProductForm({...productForm, picture})}
+                            onChange={event => setProductForm({...productForm, picture: event.target.value})}
                             />
                         </Grid>
                     </Grid>

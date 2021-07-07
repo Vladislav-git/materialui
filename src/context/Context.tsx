@@ -1,8 +1,8 @@
 import React, {useContext, useState} from 'react'
 
 
-const Context = React.createContext('');
-const UpdateContext = React.createContext('');
+const Context = React.createContext({});
+const UpdateContext = React.createContext({});
 
 export function useC () {
     return useContext(Context)
@@ -19,7 +19,7 @@ export function Provider ({children}:any) {
     const [context, setData] = useState({})
     
 
-    function updateData (data:User) {
+    function updateData (data:any) {
         setData(prevData => data)
     }
 
