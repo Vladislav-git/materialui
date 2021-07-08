@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import { Grid, CardMedia, Card, CardHeader, TextField, CardContent, Button, CardActions, Modal } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { useUpdateC } from '../context/Context'
+import { useUpdateC, useC } from '../context/Context'
 
 const useStyles = makeStyles(theme => ({
     Input: {
@@ -55,12 +55,13 @@ function Products() {
     const [productForm, setProductForm] = useState({id: '', title: '', price: '', picture: '', type: ''})
     const [products, setProducts] = useState([{title: '', price: '', picture: '', type: ''}])
     const [isVisible, setIsVisible] = useState(false)
+    const {context}:any = useC()
     const {updateData}:any = useUpdateC();
 
     useEffect(() => {
         axios({
             method: 'get',
-            url: 'http://localhost:8000/getProducts',
+            url: 'http://localhost:8000/products?page=1&limit=50',
         })
             .then(resp => {
                 setProducts(resp.data)
@@ -75,19 +76,20 @@ function Products() {
 
     const changeProduct = (form:any) => {
         axios({
-            method: 'delete',
-            url: 'http://localhost:8000/deleteProduct',
+            method: 'put',
+            url: 'http://localhost:8000/products',
             data: form
         })
             .then(resp => {
                 setProducts(resp.data)
+                setIsVisible(false)
             })
     }
 
     const deleteProduct = () => {
         axios({
             method: 'delete',
-            url: 'http://localhost:8000/changeProduct',
+            url: 'http://localhost:8000/products',
         })
             .then(resp => {
                 setProducts(resp.data)
@@ -95,14 +97,14 @@ function Products() {
     }
 
     const addProduct = (form:any) => {
-        setIsVisible(false)
         axios({
             method: 'post',
-            url: 'http://localhost:8000/addProduct',
+            url: 'http://192.168.31.181:8000/products',
             data: form
         })
             .then(resp => {
                 setProducts(resp.data)
+                setIsVisible(false)
             })
     }
 
@@ -113,7 +115,7 @@ function Products() {
             container
             className={classes.Main}
             >
-                {products[0].title === ''
+                {products[0].title
                 ? products.map((product, index) => (
                     <Grid item key={index}>
                         <Card>
@@ -189,8 +191,8 @@ function Products() {
                         </Grid>
                     </Grid>
                     {productForm.id
-                    ? <Button onSubmit={() => changeProduct(productForm)} className={classes.Button} >Submit</Button>
-                    : <Button onSubmit={() => addProduct(productForm)} className={classes.Button} >Submit</Button>
+                    ? <Button onClick={() => changeProduct(productForm)} className={classes.Button} >Submit</Button>
+                    : <Button onClick={() => addProduct(productForm)} className={classes.Button} >Submit</Button>
                     }
                     
                 </form>
